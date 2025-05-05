@@ -645,11 +645,6 @@ main {
     font-size: 0.8125rem;
 }
 
-.form-check-inline .form-check-input {
-    margin-right: var(--spacing-md);
-}
-
-
 /* Welcome animation */
 .welcome-container {
     text-align: center;
@@ -860,6 +855,38 @@ footer a:hover {
 }
 
 .projects-view .kanban-card .card-header.bg-success {
+    background: #e6f8f3 !important;
+    color: #00ad72;
+}
+
+/* Adding SmartPlanner Kanban styles to match TeamWorkspace */
+.smart-planner-view .kanban-card .card-header.bg-primary {
+    background: var(--primary-light) !important;
+    color: var(--primary-dark);
+}
+
+.smart-planner-view .kanban-card .card-header.bg-warning {
+    background: #fff2d6 !important;
+    color: #cc8500;
+}
+
+.smart-planner-view .kanban-card .card-header.bg-success {
+    background: #e6f8f3 !important;
+    color: #00ad72;
+}
+
+/* Adding ProgressReport Kanban styles to match TeamWorkspace */
+.progress-report-view .kanban-card .card-header.bg-primary {
+    background: var(--primary-light) !important;
+    color: var(--primary-dark);
+}
+
+.progress-report-view .kanban-card .card-header.bg-warning {
+    background: #fff2d6 !important;
+    color: #cc8500;
+}
+
+.progress-report-view .kanban-card .card-header.bg-success {
     background: #e6f8f3 !important;
     color: #00ad72;
 }

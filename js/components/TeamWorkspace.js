@@ -1,6 +1,8 @@
-// js/components/TeamWorkspace.js
-
-// Make sure TaskCard is available by defining it here if it's not imported
+// Aquest component gestiona la vista detallada d'un espai de treball en equip.
+// Permet als usuaris seleccionar un equip per veure'n els membres, els projectes associats
+// i les tasques. Ofereix la possibilitat de canviar entre una vista Kanban i una vista de llista
+// per a les tasques, aplicar filtres per assignat, prioritat i data límit, i veure els detalls de cada tasca.
+// També inclou modal per crear noves tasques dins de l'equip seleccionat.
 let TaskCard;
 if (typeof window !== 'undefined') {
     TaskCard = window.TaskCard;
@@ -8,11 +10,11 @@ if (typeof window !== 'undefined') {
 
 window.TeamWorkspace = {
     components: {
-        'task-card': TaskCard // Register TaskCard locally
+        'task-card': TaskCard // Registrem el component TaskCard localment
     },
     template: `
         <div class="team-workspace-view container-fluid">
-            <!-- Team Navigation -->
+            <!-- Capçalera de l'equip o llista d'equips -->
             <div class="mb-4 pb-3">
                 <div class="row align-items-center">
                     <div class="col-md-6">
@@ -33,8 +35,9 @@ window.TeamWorkspace = {
                 </div>
             </div>
 
-            <!-- Team Selection (Initial View) -->
+            <!-- Vista inicial: Selecció d'equip -->
             <div v-if="!selectedWorkspaceId" class="row g-4 mb-4">
+                <!-- Iterem sobre cada espai de treball disponible per mostrar-lo com una targeta -->
                 <div v-for="workspace in workspaces" :key="workspace.id" class="col-md-6 col-lg-4">
                     <div class="card h-100">
                         <div class="card-body">
@@ -43,8 +46,9 @@ window.TeamWorkspace = {
                             <div class="mb-3">
                                 <p class="mb-2 text-muted small">TEAM MEMBERS</p>
                                 <div>
+                                    <!-- Mostrem les avatars dels membres de l'equip -->
                                     <span v-for="userId in workspace.members" :key="userId" class="me-1">
-                                        <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name" 
+                                        <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name"
                                              class="assignee-avatar" :title="getUser(userId)?.name" width="28" height="28">
                                     </span>
                                 </div>
@@ -52,8 +56,9 @@ window.TeamWorkspace = {
                             <div>
                                 <p class="mb-2 text-muted small">PROJECTS</p>
                                 <div>
-                                    <span class="badge me-1 mb-1" 
-                                         v-for="projectId in workspace.projects" 
+                                    <!-- Mostrem les etiquetes dels projectes associats a l'equip -->
+                                    <span class="badge me-1 mb-1"
+                                         v-for="projectId in workspace.projects"
                                          :key="projectId"
                                          :style="{ backgroundColor: 'rgba(255, 56, 92, 0.08)', color: 'var(--primary)' }">
                                         {{ getProject(projectId)?.title }}
@@ -62,6 +67,7 @@ window.TeamWorkspace = {
                             </div>
                         </div>
                         <div class="card-footer bg-transparent border-0">
+                            <!-- Botó per seleccionar aquest equip i anar a la seva vista detallada -->
                             <button class="btn btn-sm btn-outline-secondary" @click="selectWorkspace(workspace.id)">
                                 View Team
                             </button>
@@ -70,8 +76,9 @@ window.TeamWorkspace = {
                 </div>
             </div>
 
-            <!-- Selected Team View -->
+            <!-- Vista detallada de l'equip seleccionat -->
             <div v-if="selectedWorkspaceId">
+                <!-- Controls principals: Tornar, canviar vista, importar -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <button class="btn btn-sm btn-outline-secondary" @click="goBack">
@@ -89,16 +96,17 @@ window.TeamWorkspace = {
                     </div>
                 </div>
 
-                <!-- Team Information -->
+                <!-- Informació detallada de l'equip: membres i estadístiques -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-8">
                                 <h5 class="card-title mb-3">Team Members</h5>
                                 <div class="d-flex flex-wrap">
-                                    <div v-for="userId in selectedWorkspace.members" :key="userId" 
+                                    <!-- Targetes dels membres de l'equip -->
+                                    <div v-for="userId in selectedWorkspace.members" :key="userId"
                                          class="team-member-card me-3 mb-3 text-center">
-                                        <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name" 
+                                        <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name"
                                              class="rounded-circle mb-2" width="52" height="52">
                                         <div class="mb-1">{{ getUser(userId)?.name }}</div>
                                         <small class="text-muted">{{ getUser(userId)?.role || 'Team Member' }}</small>
@@ -107,27 +115,29 @@ window.TeamWorkspace = {
                             </div>
                             <div class="col-lg-4">
                                 <h5 class="card-title mb-3">Team Stats</h5>
-                                
+
                                 <div class="d-flex justify-content-between text-muted small mb-1">
                                     <span>Task Status</span>
                                     <span>{{ currentTasks.length }} total tasks</span>
                                 </div>
-                                
+
+                                <!-- Barra de progrés de l'estat de les tasques -->
                                 <div class="progress mb-3" style="height: 6px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" 
-                                         :style="{width: getTaskStatusPercentage('To Do') + '%'}" 
-                                         :aria-valuenow="getTaskStatusPercentage('To Do')" 
+                                    <div class="progress-bar bg-primary" role="progressbar"
+                                         :style="{width: getTaskStatusPercentage('To Do') + '%'}"
+                                         :aria-valuenow="getTaskStatusPercentage('To Do')"
                                          aria-valuemin="0" aria-valuemax="100" title="To Do"></div>
-                                    <div class="progress-bar bg-warning" role="progressbar" 
-                                         :style="{width: getTaskStatusPercentage('In Progress') + '%'}" 
-                                         :aria-valuenow="getTaskStatusPercentage('In Progress')" 
+                                    <div class="progress-bar bg-warning" role="progressbar"
+                                         :style="{width: getTaskStatusPercentage('In Progress') + '%'}"
+                                         :aria-valuenow="getTaskStatusPercentage('In Progress')"
                                          aria-valuemin="0" aria-valuemax="100" title="In Progress"></div>
-                                    <div class="progress-bar bg-success" role="progressbar" 
-                                         :style="{width: getTaskStatusPercentage('Done') + '%'}" 
-                                         :aria-valuenow="getTaskStatusPercentage('Done')" 
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         :style="{width: getTaskStatusPercentage('Done') + '%'}"
+                                         :aria-valuenow="getTaskStatusPercentage('Done')"
                                          aria-valuemin="0" aria-valuemax="100" title="Done"></div>
                                 </div>
-                                
+
+                                <!-- Llegendes de la barra de progrés -->
                                 <div class="d-flex gap-3 mb-3">
                                     <div class="d-flex align-items-center">
                                         <span class="d-inline-block me-1" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary)"></span>
@@ -142,9 +152,10 @@ window.TeamWorkspace = {
                                         <small>{{ getTaskStatusCount('Done') }} Done</small>
                                     </div>
                                 </div>
-                                
+
+                                <!-- Llista de projectes de l'equip amb el seu progrés -->
                                 <h6 class="text-muted small mt-4 mb-2">TEAM PROJECTS</h6>
-                                <div v-for="projectId in selectedWorkspace.projects" :key="projectId" 
+                                <div v-for="projectId in selectedWorkspace.projects" :key="projectId"
                                     class="d-flex justify-content-between align-items-center mb-2 py-2 px-1 border-bottom">
                                     <div>{{ getProject(projectId)?.title }}</div>
                                     <span class="badge" :style="{
@@ -159,17 +170,19 @@ window.TeamWorkspace = {
                     </div>
                 </div>
 
-                <!-- Filtering Controls -->
+                <!-- Controls de filtratge per a les tasques -->
                 <div class="card mb-4">
                     <div class="card-body pt-2 pb-2">
                         <div class="row align-items-center">
                             <div class="col-md-3 py-2">
+                                <!-- Filtre per assignat -->
                                 <select class="form-select form-select-sm" v-model="filterAssignee">
                                     <option value="">Filter by Assignee</option>
                                     <option v-for="user in teamMembers" :key="user.id" :value="user.id">{{ user.name }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3 py-2">
+                                <!-- Filtre per prioritat -->
                                 <select class="form-select form-select-sm" v-model="filterPriority">
                                     <option value="">Filter by Priority</option>
                                     <option value="Low">Low</option>
@@ -179,30 +192,36 @@ window.TeamWorkspace = {
                                 </select>
                             </div>
                             <div class="col-md-3 py-2">
+                                <!-- Filtre per data límit -->
                                 <input type="date" class="form-control form-control-sm" v-model="filterDeadline" title="Filter by Deadline on or before">
                             </div>
                             <div class="col-md-3 py-2 text-end">
+                                <!-- Botó per esborrar tots els filtres -->
                                 <button class="btn btn-outline-secondary btn-sm" @click="clearFilters" v-if="isFiltered">Clear Filters</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Kanban View -->
+                <!-- Vista Kanban -->
                 <div v-if="isKanbanView" class="row g-4">
+                    <!-- Columnes per cada estat de tasca (To Do, In Progress, Done) -->
                     <div v-for="status in statuses" :key="status" class="col-md-4">
                         <div class="card h-100 kanban-card">
+                            <!-- Capçalera de la columna amb el nom de l'estat i el nombre de tasques -->
                             <div class="card-header d-flex align-items-center justify-content-between" :class="getStatusHeaderClass(status)">
                                 <h5 class="m-0">{{ status }}</h5>
                                 <span class="badge bg-white text-dark">{{ filteredTasks(status).length }}</span>
                             </div>
-                            <div class="card-body kanban-column" 
-                                @dragover.prevent 
+                            <!-- Cos de la columna on es mostren les tasques. Permet arrossegar i deixar anar. -->
+                            <div class="card-body kanban-column"
+                                @dragover.prevent
                                 @drop="handleDrop(status, $event)">
                                 <p class="text-muted small text-center mb-2" v-if="filteredTasks(status).length === 0">
                                     <i class="bi bi-arrow-down-square me-1"></i>
                                     Drop tasks here
                                 </p>
+                                <!-- Component TaskCard per cada tasca filtrada en aquest estat -->
                                 <task-card
                                     v-for="task in filteredTasks(status)"
                                     :key="task.id"
@@ -212,6 +231,7 @@ window.TeamWorkspace = {
                                     @dragstart="handleDragStart(task, $event)">
                                 </task-card>
                             </div>
+                            <!-- Botó per afegir una nova tasca directament a aquesta columna (estat) -->
                             <div class="card-footer bg-transparent text-center">
                                 <button class="btn btn-sm btn-outline-primary" @click="openNewTaskModal(status)">
                                     <i class="bi bi-plus-lg"></i> Add Task
@@ -221,10 +241,11 @@ window.TeamWorkspace = {
                     </div>
                 </div>
 
-                <!-- List View -->
+                <!-- Vista de Llista -->
                 <div v-else class="list-view">
                     <div class="card">
                         <div class="card-body p-0">
+                            <!-- Taula per mostrar les tasques en format de llista -->
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
@@ -238,9 +259,11 @@ window.TeamWorkspace = {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Fila per cada tasca filtrada -->
                                     <tr v-for="task in currentFilteredTasks" :key="task.id">
                                         <td>{{ task.title }}</td>
                                         <td>
+                                            <!-- Avatars dels assignats -->
                                             <span v-for="userId in task.assignees" :key="userId" class="me-1">
                                                 <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name" class="assignee-avatar" :title="getUser(userId)?.name">
                                             </span>
@@ -250,11 +273,13 @@ window.TeamWorkspace = {
                                         <td><span :class="['badge', getPriorityClass(task.priority)]">{{ task.priority }}</span></td>
                                         <td>{{ task.status }}</td>
                                         <td>
+                                            <!-- Botó per obrir els detalls de la tasca -->
                                             <button class="btn btn-sm btn-outline-secondary" @click="openTaskDetails(task)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                         </td>
                                     </tr>
+                                    <!-- Missatge si no hi ha tasques que coincideixin amb els filtres -->
                                     <tr v-if="currentFilteredTasks.length === 0">
                                         <td colspan="7" class="text-center text-muted p-4">No tasks match the current filters.</td>
                                     </tr>
@@ -266,7 +291,7 @@ window.TeamWorkspace = {
             </div>
         </div>
         <teleport to="body">
-            <!-- New Task Modal -->
+            <!-- Modal per crear una nova tasca -->
             <div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -275,6 +300,7 @@ window.TeamWorkspace = {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <!-- Formulari de creació de tasca -->
                             <form @submit.prevent="createTask">
                                 <div class="mb-3">
                                     <label for="taskTitle" class="form-label">Title <span class="text-danger">*</span></label>
@@ -287,6 +313,7 @@ window.TeamWorkspace = {
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="taskProject" class="form-label">Project</label>
+                                        <!-- Selector de projecte (només els de l'equip) -->
                                         <select class="form-select" id="taskProject" v-model="newTask.projectId">
                                             <option value="">No Project</option>
                                             <option v-for="projectId in selectedWorkspace?.projects" :key="projectId" :value="projectId">
@@ -296,6 +323,7 @@ window.TeamWorkspace = {
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="taskAssignees" class="form-label">Assignee(s)</label>
+                                        <!-- Selector múltiple d'assignats (només membres de l'equip) -->
                                         <select id="taskAssignees" class="form-select" multiple v-model="newTask.assignees">
                                             <option v-for="userId in selectedWorkspace?.members" :key="userId" :value="userId">
                                                 {{ getUser(userId)?.name }} ({{ getUser(userId)?.role || 'Team Member' }})
@@ -310,6 +338,7 @@ window.TeamWorkspace = {
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="taskPriority" class="form-label">Priority</label>
+                                        <!-- Selector de prioritat -->
                                         <select class="form-select" id="taskPriority" v-model="newTask.priority">
                                             <option>Low</option>
                                             <option>Medium</option>
@@ -321,6 +350,7 @@ window.TeamWorkspace = {
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
                                         <label for="taskStatus" class="form-label">Status</label>
+                                        <!-- Selector d'estat -->
                                         <select class="form-select" id="taskStatus" v-model="newTask.status">
                                             <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
                                         </select>
@@ -336,7 +366,7 @@ window.TeamWorkspace = {
                 </div>
             </div>
 
-            <!-- Task Details Modal -->
+            <!-- Modal per veure els detalls d'una tasca -->
             <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -345,57 +375,63 @@ window.TeamWorkspace = {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <!-- Mostra els detalls de la tasca seleccionada -->
                             <div v-if="selectedTask">
                                 <div class="mb-4">
                                     <span :class="['badge me-2', getPriorityClass(selectedTask.priority)]">{{ selectedTask.priority }}</span>
                                     <span class="badge" :style="{ backgroundColor: 'rgba(255, 56, 92, 0.1)', color: 'var(--primary)' }">{{ selectedTask.status }}</span>
                                 </div>
-                                
+
                                 <div class="mb-4">
                                     <h6 class="text-muted small">TEAM</h6>
                                     <p>{{ getWorkspace(selectedTask.workspaceId)?.name || 'N/A' }}</p>
                                 </div>
-                                
+
                                 <div class="mb-4">
                                     <h6 class="text-muted small">PROJECT</h6>
                                     <p>{{ getProject(selectedTask.projectId)?.title || 'No specific project' }}</p>
                                 </div>
-                                
+
                                 <div class="mb-4">
                                     <h6 class="text-muted small">DESCRIPTION</h6>
                                     <p>{{ selectedTask.description || 'No description provided' }}</p>
                                 </div>
-                                
+
                                 <div class="mb-4">
                                     <h6 class="text-muted small">ASSIGNEES</h6>
+                                    <!-- Mostra els assignats amb la seva avatar i nom -->
                                     <div class="d-flex align-items-center mb-2" v-for="userId in selectedTask.assignees" :key="userId">
                                         <img :src="getUser(userId)?.avatar" :alt="getUser(userId)?.name" class="assignee-avatar me-2">
                                         <span>{{ getUser(userId)?.name }} ({{ getUser(userId)?.role || 'Team Member' }})</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-4">
                                     <h6 class="text-muted small">DEADLINE</h6>
                                     <p>{{ formatDate(selectedTask.deadline) || 'No deadline set' }}</p>
                                 </div>
-                                
+
                                 <hr class="my-4">
                                 <h6 class="text-muted small">SUBTASKS</h6>
-                                <p class="text-muted">(Subtask checklist would appear here)</p>
-                                
+                                <!-- Secció per sub-tasques (fora d'abast per ara) -->
+                                <p class="text-muted">Funció fora dels escensaris de ús</p>
+
                                 <hr class="my-4">
                                 <h6 class="text-muted small">COMMENTS</h6>
-                                <p class="text-muted">(Comments section with @mentions would appear here)</p>
+                                <!-- Secció per comentaris (fora d'abast per ara) -->
+                                <p class="text-muted">Funció fora dels escensaris de ús</p>
                                 <div class="mb-3">
                                     <textarea class="form-control" placeholder="Add a comment..." rows="2"></textarea>
                                 </div>
                                 <button class="btn btn-sm btn-outline-secondary">Add Comment</button>
-                                
+
                                 <hr class="my-4">
                                 <h6 class="text-muted small">ACTIVITY</h6>
-                                <p class="text-muted">(Activity log would appear here)</p>
+                                <!-- Secció per l'activitat (fora d'abast per ara) -->
+                                <p class="text-muted">Funció fora dels escensaris de ús</p>
                             </div>
                             <div v-else>
+                                <!-- Missatge de càrrega si la tasca encara no està seleccionada -->
                                 <div class="text-center p-4">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
@@ -414,221 +450,37 @@ window.TeamWorkspace = {
     `,
     data() {
         return {
-            isKanbanView: true,
-            selectedWorkspaceId: null,
-            statuses: ['To Do', 'In Progress', 'Done'],
+            isKanbanView: true, // Controla si es mostra la vista Kanban o la de llista
+            selectedWorkspaceId: null, // ID de l'equip seleccionat actualment
+            statuses: ['To Do', 'In Progress', 'Done'], // Estats possibles per a les tasques
 
-            // Users data
-            users: [
-                { id: 1, name: 'Maria Lluïsa', avatar: 'https://placehold.co/30/007bff/ffffff?text=ML', workload: 'Medium', role: 'Project Manager' },
-                { id: 2, name: 'Alex', avatar: 'https://placehold.co/30/28a745/ffffff?text=A', workload: 'Medium', role: 'Developer' },
-                { id: 3, name: 'Ben', avatar: 'https://placehold.co/30/fd7e14/ffffff?text=B', workload: 'Low', role: 'Designer' },
-                { id: 4, name: 'Chloe', avatar: 'https://placehold.co/30/6f42c1/ffffff?text=C', workload: 'High', role: 'Business Analyst' },
-                { id: 5, name: 'David', avatar: 'https://placehold.co/30/20c997/ffffff?text=D', workload: 'Medium', role: 'Tech Lead' },
-                { id: 6, name: 'Eva', avatar: 'https://placehold.co/30/e83e8c/ffffff?text=E', workload: 'High', role: 'UX Designer' },
-                { id: 7, name: 'Finn', avatar: 'https://placehold.co/30/ffc107/000000?text=F', workload: 'Low', role: 'Marketing' }
-            ],
+            // Dades obtingudes del DataService
+            users: window.DataService.getUsers(),
+            projects: window.DataService.getProjects(),
+            workspaces: window.DataService.getWorkspaces(),
+            tasks: window.DataService.getTasks(),
 
-            // Project definitions (reference data)
-            projects: [
-                {
-                    id: 1,
-                    title: 'Q3 Internal Process Optimization',
-                    goal: 'Streamline internal reporting workflows by end of Q3',
-                    deadline: '2025-09-30',
-                    progress: 25,
-                    workspaceId: 1
-                },
-                {
-                    id: 2,
-                    title: 'New Client Portal Launch',
-                    goal: 'Successfully launch the new client-facing portal by October 31st',
-                    deadline: '2025-10-31',
-                    progress: 15,
-                    workspaceId: 2
-                },
-                {
-                    id: 3,
-                    title: 'Social Media Integration',
-                    goal: 'Integrate social media dashboard into existing platform',
-                    deadline: '2025-11-15',
-                    progress: 5,
-                    workspaceId: 2
-                }
-            ],
-
-            // Workspace/Team definitions
-            workspaces: [
-                {
-                    id: 1,
-                    name: 'Equip de Filosofia',
-                    description: 'Team focused on philosophical approach to product development',
-                    members: [1, 2, 3, 4], // Maria Lluïsa, Alex, Ben, Chloe
-                    projects: [1] // Project 1: Internal Process Optimization
-                },
-                {
-                    id: 2,
-                    name: 'Equip de Factors Humans',
-                    description: 'Team dedicated to human factors and user experience',
-                    members: [1, 5, 6, 7], // Maria Lluïsa, David, Eva, Finn
-                    projects: [2, 3] // Projects 2 & 3
-                }
-            ],
-
-            // Tasks data
-            tasks: [
-                // Team 1 (Equip de Filosofia) tasks
-                {
-                    id: 1,
-                    title: 'Map current reporting process',
-                    description: 'Document the existing reporting workflow including all stakeholders and touchpoints.',
-                    assignees: [2], // Alex
-                    deadline: '2025-05-15',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-                {
-                    id: 2,
-                    title: 'Identify bottlenecks in reporting',
-                    description: 'Analyze the current process and identify key inefficiencies and pain points.',
-                    assignees: [3], // Ben
-                    deadline: '2025-05-20',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-                {
-                    id: 3,
-                    title: 'Draft proposal for new workflow',
-                    description: 'Create a comprehensive proposal for the improved reporting workflow with justifications.',
-                    assignees: [4], // Chloe
-                    deadline: '2025-06-01',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-                {
-                    id: 10,
-                    title: 'Team training session',
-                    description: 'Organize and conduct team training on new methodologies',
-                    assignees: [1, 2, 3, 4], // All team members
-                    deadline: '2025-05-25',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: null, // No specific project
-                    workspaceId: 1
-                },
-
-                // Team 2 (Equip de Factors Humans) tasks
-                {
-                    id: 4,
-                    title: 'Finalize UI design mockups',
-                    description: 'Complete all UI design mockups for the client portal including responsive views.',
-                    assignees: [5, 6], // David, Eva
-                    deadline: '2025-05-15',
-                    priority: 'Urgent',
-                    status: 'In Progress',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                {
-                    id: 5,
-                    title: 'Develop authentication module',
-                    description: 'Build the authentication system including login, password reset, and session management.',
-                    assignees: [5], // David
-                    deadline: '2025-05-30',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                {
-                    id: 6,
-                    title: 'Plan user acceptance testing',
-                    description: 'Develop comprehensive UAT plan including test cases, participant selection, and feedback collection.',
-                    assignees: [7], // Finn
-                    deadline: '2025-06-10',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                {
-                    id: 7,
-                    title: 'Research API integrations',
-                    description: 'Investigate social media platforms APIs and document integration requirements.',
-                    assignees: [5], // David
-                    deadline: '2025-05-15',
-                    priority: 'Medium',
-                    status: 'In Progress',
-                    projectId: 3,
-                    workspaceId: 2
-                },
-                {
-                    id: 8,
-                    title: 'Design social dashboard UI',
-                    description: 'Create UI mockups for the social media dashboard with analytics views.',
-                    assignees: [6], // Eva
-                    deadline: '2025-05-25',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 3,
-                    workspaceId: 2
-                },
-                {
-                    id: 9,
-                    title: 'Draft social media strategy',
-                    description: 'Develop content strategy and posting guidelines for social media integration.',
-                    assignees: [7], // Finn
-                    deadline: '2025-06-01',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 3,
-                    workspaceId: 2
-                },
-                {
-                    id: 11,
-                    title: 'Monthly team retrospective',
-                    description: 'Review team progress and plan improvements for next sprint',
-                    assignees: [1, 5, 6, 7], // All team members
-                    deadline: '2025-05-30',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: null, // No specific project
-                    workspaceId: 2
-                }
-            ],
-
-            // New task template
+            // Dades per al formulari de creació de nova tasca
             newTask: {
-                title: '',
-                description: '',
-                assignees: [],
-                deadline: '',
-                priority: 'Medium',
-                status: 'To Do',
-                projectId: null,
-                workspaceId: null
+                title: '', description: '', assignees: [], deadline: '', priority: 'Medium', status: 'To Do', projectId: null, workspaceId: null
             },
-            selectedTask: null,
-            taskDetailsModalInstance: null,
-            newTaskModalInstance: null,
-            draggedTask: null,
+            selectedTask: null, // Tasca seleccionada per veure els detalls al modal
+            taskDetailsModalInstance: null, // Instància del modal de detalls de tasca
+            newTaskModalInstance: null, // Instància del modal de nova tasca
+            draggedTask: null, // Tasca que s'està arrossegant al Kanban
 
-            // Filters
+            // Filtres aplicats a les tasques
             filterAssignee: '',
             filterPriority: '',
-            filterDeadline: '',
+            filterDeadline: ''
         };
     },
     computed: {
+        // Retorna l'objecte workspace seleccionat actualment
         selectedWorkspace() {
             return this.workspaces.find(w => w.id === this.selectedWorkspaceId);
         },
+        // Retorna la llista de membres de l'equip seleccionat
         teamMembers() {
             if (this.selectedWorkspaceId) {
                 const workspace = this.getWorkspace(this.selectedWorkspaceId);
@@ -636,12 +488,14 @@ window.TeamWorkspace = {
             }
             return [];
         },
+        // Retorna totes les tasques que pertanyen a l'equip seleccionat
         currentTasks() {
             if (this.selectedWorkspaceId) {
                 return this.tasks.filter(task => task.workspaceId === this.selectedWorkspaceId);
             }
             return [];
         },
+        // Retorna les tasques de l'equip seleccionat, aplicant els filtres actius
         currentFilteredTasks() {
             return this.currentTasks.filter(task => {
                 const assigneeMatch = !this.filterAssignee || task.assignees.includes(parseInt(this.filterAssignee));
@@ -650,31 +504,38 @@ window.TeamWorkspace = {
                 return assigneeMatch && priorityMatch && deadlineMatch;
             });
         },
+        // Indica si s'està aplicant algun filtre
         isFiltered() {
             return this.filterAssignee || this.filterPriority || this.filterDeadline;
         }
     },
     methods: {
+        // Selecciona un espai de treball per mostrar la seva vista detallada
         selectWorkspace(workspaceId) {
             this.selectedWorkspaceId = workspaceId;
             if (workspaceId) {
                 this.newTask.workspaceId = workspaceId;
             }
         },
+        // Torna a la vista inicial de selecció d'equips
         goBack() {
             this.selectedWorkspaceId = null;
         },
+        // Busca i retorna un objecte projecte per la seva ID
         getProject(id) {
             return this.projects.find(p => p.id === id);
         },
+        // Busca i retorna un objecte workspace per la seva ID
         getWorkspace(id) {
             return this.workspaces.find(w => w.id === id);
         },
+        // Determina el color de la barra de progrés d'un projecte
         getProgressColor(progress) {
             if (progress < 25) return 'var(--warning)';
             if (progress < 75) return 'var(--primary)';
             return 'var(--success)';
         },
+        // Determina la classe del badge de progrés d'un projecte (no utilitzat al template actual)
         getProgressBadgeClass(progress) {
             if (!progress) return 'bg-secondary';
             if (progress < 25) return 'bg-danger';
@@ -682,23 +543,29 @@ window.TeamWorkspace = {
             if (progress < 75) return 'bg-primary';
             return 'bg-success';
         },
+        // Canvia entre la vista Kanban i la vista de llista
         toggleView() {
             this.isKanbanView = !this.isKanbanView;
         },
+        // Retorna les tasques filtrades per un estat específic (usat a la vista Kanban)
         filteredTasks(status) {
             return this.currentFilteredTasks.filter(task => task.status === status);
         },
+        // Busca i retorna un objecte usuari per la seva ID
         getUser(userId) {
             return this.users.find(user => user.id === userId);
         },
+        // Compta el nombre de tasques en un estat específic
         getTaskStatusCount(status) {
             return this.currentTasks.filter(task => task.status === status).length;
         },
+        // Calcula el percentatge de tasques en un estat específic
         getTaskStatusPercentage(status) {
             const totalTasks = this.currentTasks.length;
             if (totalTasks === 0) return 0;
             return Math.round((this.getTaskStatusCount(status) / totalTasks) * 100);
         },
+        // Determina la classe CSS per al badge de prioritat
         getPriorityClass(priority) {
             switch (priority?.toLowerCase()) {
                 case 'low': return 'bg-success text-light';
@@ -708,6 +575,7 @@ window.TeamWorkspace = {
                 default: return 'bg-secondary text-light';
             }
         },
+        // Determina la classe CSS per a la capçalera de la columna de l'estat al Kanban
         getStatusHeaderClass(status) {
             switch (status?.toLowerCase()) {
                 case 'to do': return 'bg-primary';
@@ -716,38 +584,26 @@ window.TeamWorkspace = {
                 default: return 'bg-secondary';
             }
         },
+        // Crea una nova tasca a partir de les dades del formulari
         createTask() {
             if (!this.newTask.title || !this.selectedWorkspaceId) return;
-            
-            // Set workspace ID for new task
             this.newTask.workspaceId = this.selectedWorkspaceId;
-            
-            const newTaskToAdd = {
-                id: Date.now(),
+
+            // Utilitza el DataService per persistir la nova tasca
+            const newTaskToAdd = window.DataService.createTask({
                 ...this.newTask,
                 assignees: this.newTask.assignees.map(id => parseInt(id))
-            };
-            
-            this.tasks.push(newTaskToAdd);
-            
-            // Reset form while keeping the current workspace ID
-            const currentWorkspaceId = this.selectedWorkspaceId;
-            this.newTask = {
-                title: '',
-                description: '',
-                assignees: [],
-                deadline: '',
-                priority: 'Medium',
-                status: 'To Do',
-                projectId: null,
-                workspaceId: currentWorkspaceId
-            };
-            
-            this.newTaskModalInstance.hide();
+            });
+
+            // Reinicia el formulari mantenint l'equip seleccionat
+            const wsId = this.selectedWorkspaceId;
+            this.newTask = { title: '', description: '', assignees: [], deadline: '', priority: 'Medium', status: 'To Do', projectId: null, workspaceId: wsId };
+            this.newTaskModalInstance.hide(); // Tanca el modal
             console.log("Team task created:", newTaskToAdd);
         },
+        // Obre el modal de detalls per a una tasca específica
         openTaskDetails(task) {
-            // Hide mobile overlay if active
+            // Oculta la superposició mòbil si està activa
             const overlay = document.querySelector('.mobile-overlay');
             if (overlay && overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
@@ -756,8 +612,9 @@ window.TeamWorkspace = {
             this.selectedTask = task;
             this.taskDetailsModalInstance.show();
         },
+        // Obre el modal de creació de tasca, opcionalment pre-seleccionant un estat
         openNewTaskModal(status) {
-            // Hide mobile overlay if active
+             // Oculta la superposició mòbil si està activa
             const overlay = document.querySelector('.mobile-overlay');
             if (overlay && overlay.classList.contains('active')) {
                 overlay.classList.remove('active');
@@ -766,22 +623,25 @@ window.TeamWorkspace = {
             if (status) {
                 this.newTask.status = status;
             }
-            
+
             if (this.selectedWorkspaceId) {
                 this.newTask.workspaceId = this.selectedWorkspaceId;
             }
-            
+
             this.newTaskModalInstance.show();
         },
+        // Simula la funcionalitat d'importació de tasques
         simulateImport() {
             console.log("Simulating task import...");
-            alert("Task import initiated (Simulated). Check console for details.");
+            alert("Funció fora dels escensaris de ús");
         },
+        // Esborra tots els filtres actius
         clearFilters() {
             this.filterAssignee = '';
             this.filterPriority = '';
             this.filterDeadline = '';
         },
+        // Formateja una data a un format curt (Mes Dia)
         formatDate(dateString) {
             if (!dateString) return '';
             try {
@@ -791,47 +651,47 @@ window.TeamWorkspace = {
                 return dateString;
             }
         },
+        // Gestiona l'inici de l'arrossegament d'una tasca al Kanban
         handleDragStart(task, event) {
             console.log('Dragging task:', task.id);
             this.draggedTask = task;
             event.dataTransfer.effectAllowed = 'move';
         },
+        // Gestiona l'acció de deixar anar una tasca a una columna del Kanban
         handleDrop(targetStatus, event) {
             event.preventDefault();
             if (!this.draggedTask) return;
-            
-            console.log(`Dropping task ${this.draggedTask.id} onto status ${targetStatus}`);
-            
-            const taskIndex = this.tasks.findIndex(t => t.id === this.draggedTask.id);
-            if (taskIndex !== -1 && this.tasks[taskIndex].status !== targetStatus) {
-                this.tasks[taskIndex].status = targetStatus;
-                console.log(`Task ${this.draggedTask.id} status updated to ${targetStatus}`);
+            const idx = this.tasks.findIndex(t => t.id === this.draggedTask.id);
+            // Si la tasca existeix i l'estat de destinació és diferent, l'actualitza
+            if (idx !== -1 && this.tasks[idx].status !== targetStatus) {
+                this.tasks[idx].status = targetStatus;
+                window.DataService.updateTask(this.tasks[idx]); // Persisteix el canvi
             }
-            this.draggedTask = null;
+            this.draggedTask = null; // Reinicia la tasca arrossegada
         }
     },
     mounted() {
-        // Initialize Bootstrap Modals
+        // Inicialitza les instàncies dels modals de Bootstrap quan el component es munta
         const taskDetailsModalEl = document.getElementById('taskDetailsModal');
         if (taskDetailsModalEl) {
-            // Explicitly set backdrop and keyboard options
+            // Configuració explícita de les opcions del modal
             this.taskDetailsModalInstance = new bootstrap.Modal(taskDetailsModalEl, {
-                backdrop: true, // Default, but explicit
-                keyboard: true  // Default, but explicit
+                backdrop: true, // Per defecte, però explícit
+                keyboard: true  // Per defecte, però explícit
             });
         }
         const newTaskModalEl = document.getElementById('newTaskModal');
         if (newTaskModalEl) {
-            // Explicitly set backdrop and keyboard options
+            // Configuració explícita de les opcions del modal
             this.newTaskModalInstance = new bootstrap.Modal(newTaskModalEl, {
-                backdrop: true, // Default, but explicit
-                keyboard: true  // Default, but explicit
+                backdrop: true, // Per defecte, però explícit
+                keyboard: true  // Per defecte, però explícit
             });
         }
         console.log('Team Workspace component mounted.');
     },
     beforeUnmount() {
-        // Clean up modal instances
+        // Neteja les instàncies dels modals abans que el component es desmunta
         this.taskDetailsModalInstance?.dispose();
         this.newTaskModalInstance?.dispose();
     }

@@ -1,6 +1,4 @@
-// js/components/ProjectsView.js
-
-// Make sure TaskCard is available by defining it here if it's not imported
+// Ens assegurem que TaskCard estigui disponible. El busquem a window si estem al navegador.
 let TaskCardProject;
 if (typeof window !== 'undefined') {
     TaskCardProject = window.TaskCard;
@@ -8,11 +6,12 @@ if (typeof window !== 'undefined') {
 
 window.ProjectsView = {
     components: {
-        'task-card': TaskCardProject // Register TaskCard locally
+        // Registrem TaskCard localment perquè el template el pugui usar.
+        'task-card': TaskCardProject
     },
     template: `
         <div class="projects-view container-fluid">
-            <!-- Project Navigation -->
+            <!-- Navegació de projectes -->
             <div class="mb-4 pb-3">
                 <div class="row align-items-center">
                     <div class="col-md-6">
@@ -33,7 +32,7 @@ window.ProjectsView = {
                 </div>
             </div>
 
-            <!-- Project List (Initial View) -->
+            <!-- Llista de projectes (vista inicial) -->
             <div v-if="!selectedProjectId" class="row g-4 mb-4">
                 <div v-for="project in projects" :key="project.id" class="col-md-6 col-lg-4">
                     <div class="card h-100">
@@ -70,7 +69,7 @@ window.ProjectsView = {
                 </div>
             </div>
 
-            <!-- Selected Project View -->
+            <!-- Vista d'un projecte seleccionat -->
             <div v-if="selectedProjectId">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -89,7 +88,7 @@ window.ProjectsView = {
                     </div>
                 </div>
                 
-                <!-- Project Information -->
+                <!-- Informació del projecte -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="row">
@@ -124,7 +123,7 @@ window.ProjectsView = {
                     </div>
                 </div>
 
-                <!-- Filtering Controls -->
+                <!-- Controls de filtre -->
                 <div class="card mb-4">
                     <div class="card-body pt-2 pb-2">
                         <div class="row align-items-center">
@@ -153,7 +152,7 @@ window.ProjectsView = {
                     </div>
                 </div>
 
-                <!-- Kanban View -->
+                <!-- Vista Kanban -->
                 <div v-if="isKanbanView" class="row g-4">
                     <div v-for="status in statuses" :key="status" class="col-md-4">
                         <div class="card h-100 kanban-card">
@@ -186,7 +185,7 @@ window.ProjectsView = {
                     </div>
                 </div>
 
-                <!-- List View -->
+                <!-- Vista de llista -->
                 <div v-else class="list-view">
                     <div class="card">
                         <div class="card-body p-0">
@@ -228,7 +227,7 @@ window.ProjectsView = {
                 </div>
             </div>
 
-            <!-- New Task Modal -->
+            <!-- Modal per crear una nova tasca -->
             <div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -300,7 +299,7 @@ window.ProjectsView = {
                 </div>
             </div>
 
-            <!-- Task Details Modal -->
+            <!-- Modal amb els detalls de la tasca -->
             <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -346,11 +345,11 @@ window.ProjectsView = {
                                 
                                 <hr class="my-4">
                                 <h6 class="text-muted small">SUBTASKS</h6>
-                                <p class="text-muted">(Subtask checklist would appear here)</p>
+                                <p class="text-muted">(Aquí apareixeria la llista de subtasques)</p>
                                 
                                 <hr class="my-4">
                                 <h6 class="text-muted small">COMMENTS</h6>
-                                <p class="text-muted">(Comments section with @mentions would appear here)</p>
+                                <p class="text-muted">(Aquí apareixeria la secció de comentaris amb @mencions)</p>
                                 <div class="mb-3">
                                     <textarea class="form-control" placeholder="Add a comment..." rows="2"></textarea>
                                 </div>
@@ -358,7 +357,7 @@ window.ProjectsView = {
                                 
                                 <hr class="my-4">
                                 <h6 class="text-muted small">ACTIVITY</h6>
-                                <p class="text-muted">(Activity log would appear here)</p>
+                                <p class="text-muted">(Aquí apareixeria el registre d'activitat)</p>
                             </div>
                             <div v-else>
                                 <div class="text-center p-4">
@@ -383,190 +382,21 @@ window.ProjectsView = {
             selectedProjectId: null,
             statuses: ['To Do', 'In Progress', 'Done'],
 
-            // Users data
-            users: [
-                { id: 1, name: 'Maria Lluïsa', avatar: 'https://placehold.co/30/007bff/ffffff?text=ML', workload: 'Medium', role: 'Project Manager' },
-                { id: 2, name: 'Alex', avatar: 'https://placehold.co/30/28a745/ffffff?text=A', workload: 'Medium', role: 'Developer' },
-                { id: 3, name: 'Ben', avatar: 'https://placehold.co/30/fd7e14/ffffff?text=B', workload: 'Low', role: 'Designer' },
-                { id: 4, name: 'Chloe', avatar: 'https://placehold.co/30/6f42c1/ffffff?text=C', workload: 'High', role: 'Business Analyst' },
-                { id: 5, name: 'David', avatar: 'https://placehold.co/30/20c997/ffffff?text=D', workload: 'Medium', role: 'Tech Lead' },
-                { id: 6, name: 'Eva', avatar: 'https://placehold.co/30/e83e8c/ffffff?text=E', workload: 'High', role: 'UX Designer' },
-                { id: 7, name: 'Finn', avatar: 'https://placehold.co/30/ffc107/000000?text=F', workload: 'Low', role: 'Marketing' }
-            ],
-
-            // Project definitions - now with 3 projects
-            projects: [
-                {
-                    id: 1,
-                    title: 'Q3 Internal Process Optimization',
-                    goal: 'Streamline internal reporting workflows by end of Q3',
-                    deadline: '2025-09-30',
-                    progress: 25,
-                    workspaceId: 1 // Belongs to Equip de Filosofia
-                },
-                {
-                    id: 2,
-                    title: 'New Client Portal Launch',
-                    goal: 'Successfully launch the new client-facing portal by October 31st',
-                    deadline: '2025-10-31',
-                    progress: 15,
-                    workspaceId: 2 // Belongs to Equip de Factors Humans
-                },
-                {
-                    id: 3,
-                    title: 'Social Media Integration',
-                    goal: 'Integrate social media dashboard into existing platform',
-                    deadline: '2025-11-15',
-                    progress: 5,
-                    workspaceId: 2 // Belongs to Equip de Factors Humans (second project)
-                }
-            ],
-
-            // Workspace/Team definitions (reference data - not shown in this view)
-            workspaces: [
-                {
-                    id: 1,
-                    name: 'Equip de Filosofia',
-                    description: 'Team focused on philosophical approach to product development',
-                    members: [1, 2, 3, 4], // Maria Lluïsa, Alex, Ben, Chloe
-                    projects: [1] // Project 1: Internal Process Optimization
-                },
-                {
-                    id: 2,
-                    name: 'Equip de Factors Humans',
-                    description: 'Team dedicated to human factors and user experience',
-                    members: [1, 5, 6, 7], // Maria Lluïsa, David, Eva, Finn
-                    projects: [2, 3] // Projects 2 & 3
-                }
-            ],
-
-            // Current date used for deadline calculations
-            currentDate: new Date('2025-05-05'),
-
-            // Tasks for the projects
-            tasks: [
-                // Project 1 tasks (Equip de Filosofia)
-                {
-                    id: 1,
-                    title: 'Map current reporting process',
-                    description: 'Document the existing reporting workflow including all stakeholders and touchpoints.',
-                    assignees: [2], // Alex
-                    deadline: '2025-05-15',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-                {
-                    id: 2,
-                    title: 'Identify bottlenecks in reporting',
-                    description: 'Analyze the current process and identify key inefficiencies and pain points.',
-                    assignees: [3], // Ben
-                    deadline: '2025-05-20',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-                {
-                    id: 3,
-                    title: 'Draft proposal for new workflow',
-                    description: 'Create a comprehensive proposal for the improved reporting workflow with justifications.',
-                    assignees: [4], // Chloe
-                    deadline: '2025-06-01',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 1,
-                    workspaceId: 1
-                },
-
-                // Project 2 tasks (Client Portal - Equip de Factors Humans)
-                {
-                    id: 4,
-                    title: 'Finalize UI design mockups',
-                    description: 'Complete all UI design mockups for the client portal including responsive views.',
-                    assignees: [5, 6], // David, Eva
-                    deadline: '2025-05-15',
-                    priority: 'Urgent',
-                    status: 'In Progress',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                {
-                    id: 5,
-                    title: 'Develop authentication module',
-                    description: 'Build the authentication system including login, password reset, and session management.',
-                    assignees: [5], // David
-                    deadline: '2025-05-30',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                {
-                    id: 6,
-                    title: 'Plan user acceptance testing',
-                    description: 'Develop comprehensive UAT plan including test cases, participant selection, and feedback collection.',
-                    assignees: [7], // Finn
-                    deadline: '2025-06-10',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 2,
-                    workspaceId: 2
-                },
-                
-                // Project 3 tasks (Social Media Integration - Equip de Factors Humans)
-                {
-                    id: 7,
-                    title: 'Research API integrations',
-                    description: 'Investigate social media platforms APIs and document integration requirements.',
-                    assignees: [5], // David
-                    deadline: '2025-05-15',
-                    priority: 'Medium',
-                    status: 'In Progress',
-                    projectId: 3,
-                    workspaceId: 2
-                },
-                {
-                    id: 8,
-                    title: 'Design social dashboard UI',
-                    description: 'Create UI mockups for the social media dashboard with analytics views.',
-                    assignees: [6], // Eva
-                    deadline: '2025-05-25',
-                    priority: 'High',
-                    status: 'To Do',
-                    projectId: 3,
-                    workspaceId: 2
-                },
-                {
-                    id: 9,
-                    title: 'Draft social media strategy',
-                    description: 'Develop content strategy and posting guidelines for social media integration.',
-                    assignees: [7], // Finn
-                    deadline: '2025-06-01',
-                    priority: 'Medium',
-                    status: 'To Do',
-                    projectId: 3,
-                    workspaceId: 2
-                }
-            ],
+            // Substituïm dades fixes per dades del servei central (DataService).
+            users: window.DataService.getUsers(),
+            projects: window.DataService.getProjects(),
+            workspaces: window.DataService.getWorkspaces(),
+            tasks: window.DataService.getTasks(),
 
             newTask: {
-                title: '',
-                description: '',
-                assignees: [],
-                deadline: '',
-                priority: 'Medium',
-                status: 'To Do',
-                projectId: null,
-                workspaceId: null
+                title: '', description: '', assignees: [], deadline: '', priority: 'Medium', status: 'To Do', projectId: null, workspaceId: null
             },
             selectedTask: null,
             taskDetailsModalInstance: null,
             newTaskModalInstance: null,
             draggedTask: null,
 
-            // Filters
+            // Filtres
             filterAssignee: '',
             filterPriority: '',
             filterDeadline: '',
@@ -689,36 +519,20 @@ window.ProjectsView = {
         },
         createTask() {
             if (!this.newTask.title) return;
-            
-            // Set project's workspace if not already set
             if (this.newTask.projectId && !this.newTask.workspaceId) {
                 const project = this.getProject(this.newTask.projectId);
-                if (project) {
-                    this.newTask.workspaceId = project.workspaceId;
-                }
+                if (project) this.newTask.workspaceId = project.workspaceId;
             }
-            
-            const newTaskToAdd = {
-                id: Date.now(),
+            // Guardem la tasca mitjançant el DataService.
+            const newTaskToAdd = window.DataService.createTask({
                 ...this.newTask,
                 assignees: this.newTask.assignees.map(id => parseInt(id)),
-                subtasks: [],
-                comments: []
-            };
-            this.tasks.push(newTaskToAdd);
-            
-            // Reset form
+            });
+
+            // Reiniciem el formulari.
             this.newTask = {
-                title: '',
-                description: '',
-                assignees: [],
-                deadline: '',
-                priority: 'Medium',
-                status: 'To Do',
-                projectId: this.selectedProjectId || null,
-                workspaceId: this.selectedProject ? this.selectedProject.workspaceId : null
+                title: '', description: '', assignees: [], deadline: '', priority: 'Medium', status: 'To Do', projectId: this.selectedProjectId || null, workspaceId: this.selectedProject ? this.selectedProject.workspaceId : null
             };
-            
             this.newTaskModalInstance.hide();
             console.log("Task created:", newTaskToAdd);
         },
@@ -731,7 +545,7 @@ window.ProjectsView = {
                 this.newTask.status = status;
             }
             
-            // Pre-select current project if viewing a project
+            // Preseleccionem el projecte actual si estem veient un projecte.
             if (this.selectedProjectId) {
                 this.newTask.projectId = this.selectedProjectId;
                 const project = this.getProject(this.selectedProjectId);
@@ -744,7 +558,7 @@ window.ProjectsView = {
         },
         simulateImport() {
             console.log("Simulating task import...");
-            alert("Task import initiated (Simulated). Check console for details.");
+            alert("Funció fora dels escenaris de ús");
         },
         clearFilters() {
             this.filterAssignee = '';
@@ -754,10 +568,12 @@ window.ProjectsView = {
         formatDate(dateString) {
             if (!dateString) return '';
             try {
-                const date = new Date(dateString + 'T00:00:00'); // Avoid timezone issues
+                // Afegim T00:00:00 per evitar problemes de fus horari.
+                const date = new Date(dateString + 'T00:00:00'); 
                 return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
             } catch (e) {
-                return dateString; // Fallback
+                // Cas de fallback si hi ha un error.
+                return dateString; 
             }
         },
         handleDragStart(task, event) {
@@ -768,19 +584,18 @@ window.ProjectsView = {
         handleDrop(targetStatus, event) {
             event.preventDefault();
             if (!this.draggedTask) return;
-
-            console.log(`Dropping task ${this.draggedTask.id} onto status ${targetStatus}`);
-
             const taskIndex = this.tasks.findIndex(t => t.id === this.draggedTask.id);
             if (taskIndex !== -1 && this.tasks[taskIndex].status !== targetStatus) {
                 this.tasks[taskIndex].status = targetStatus;
+                // Actualitzem les dades persistents mitjançant el DataService.
+                window.DataService.updateTask(this.tasks[taskIndex]);
                 console.log(`Task ${this.draggedTask.id} status updated to ${targetStatus}`);
             }
             this.draggedTask = null;
         }
     },
     mounted() {
-        // Initialize Bootstrap Modals after the component is mounted
+        // Inicialitzem els modales de Bootstrap un cop el component s'ha muntat.
         const taskDetailsModalEl = document.getElementById('taskDetailsModal');
         if (taskDetailsModalEl) {
             this.taskDetailsModalInstance = new bootstrap.Modal(taskDetailsModalEl);
@@ -792,7 +607,7 @@ window.ProjectsView = {
         console.log('Projects view component mounted.');
     },
     beforeUnmount() {
-        // Clean up modal instances to prevent memory leaks
+        // Netegem les instàncies dels modales per evitar fugues de memòria.
         this.taskDetailsModalInstance?.dispose();
         this.newTaskModalInstance?.dispose();
     }

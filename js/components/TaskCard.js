@@ -1,5 +1,3 @@
-// js/components/TaskCard.js
-
 window.TaskCard = {
     props: {
         task: {
