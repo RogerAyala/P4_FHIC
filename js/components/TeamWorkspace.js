@@ -594,6 +594,8 @@ window.TeamWorkspace = {
                 ...this.newTask,
                 assignees: this.newTask.assignees.map(id => parseInt(id))
             });
+            
+            this.tasks = [...window.DataService.getTasks()];
 
             // Reinicia el formulari mantenint l'equip seleccionat
             const wsId = this.selectedWorkspaceId;

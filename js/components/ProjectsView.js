@@ -523,18 +523,20 @@ window.ProjectsView = {
                 const project = this.getProject(this.newTask.projectId);
                 if (project) this.newTask.workspaceId = project.workspaceId;
             }
-            // Guardem la tasca mitjançant el DataService.
-            const newTaskToAdd = window.DataService.createTask({
+    
+            const newTaskObject = window.DataService.createTask({
                 ...this.newTask,
                 assignees: this.newTask.assignees.map(id => parseInt(id)),
             });
 
-            // Reiniciem el formulari.
+            this.tasks = [...window.DataService.getTasks()];
+            
             this.newTask = {
                 title: '', description: '', assignees: [], deadline: '', priority: 'Medium', status: 'To Do', projectId: this.selectedProjectId || null, workspaceId: this.selectedProject ? this.selectedProject.workspaceId : null
             };
+    
             this.newTaskModalInstance.hide();
-            console.log("Task created:", newTaskToAdd);
+            console.log("Task created:", newTaskObject);
         },
         openTaskDetails(task) {
             this.selectedTask = task;
